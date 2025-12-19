@@ -1,7 +1,7 @@
 # Build frontend
 FROM node:18 AS frontend-build
 WORKDIR /frontend
-COPY frontend/package.json frontend/package-lock.json ./
+# COPY frontend/package.json frontend/package-lock.json ./
 RUN apt-get update && apt-get install -y dos2unix \
 	&& npm install \
 	&& find ./node_modules/.bin -type f -exec dos2unix {} \; \
