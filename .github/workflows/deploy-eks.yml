@@ -27,9 +27,11 @@ jobs:
       - name: Create ECR repository (if not exists)
         id: ecr
         run: |
-          aws ecr describe-repositories --repository-names $ECR_REPO_NAME || \
+          if ! aws ecr describe-repositories --repository-names $ECR_REPO_NAME > /dev/null 2>&1; then
           aws ecr create-repository --repository-name $ECR_REPO_NAME
-          echo "::set-output name=repository_uri::$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text)"
+          fi
+          repository_uri=$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text)
+          echo "repository_uri=$repository_uri" >> $GITHUB_ENV
 
       - name: Login to Amazon ECR
         run: |
