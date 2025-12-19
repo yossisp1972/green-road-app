@@ -1,5 +1,6 @@
 name: Build and Deploy to EKS
 
+
 on:
   workflow_dispatch:
 
@@ -53,8 +54,16 @@ jobs:
       - name: Deploy to EKS
         run: |
           kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text):$IMAGE_TAG || \
-          kubectl create deployment $DEPLOYMENT_NAME --image=$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text):$IMAGE_TAG --port=5000
-          kubectl expose deployment $DEPLOYMENT_NAME --type=LoadBalancer --port=80 --target-port=5000 --name=$DEPLOYMENT_NAME-service || true
+          kubectl create deployment $DEPLOYMENT_NAME --image=$(aws ecr.describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text):$IMAGE_TAG --port=5000
+
+          if ! kubectl get service $DEPLOYMENT_NAME-service; then
+            kubectl expose deployment $DEPLOYMENT_NAME --type=LoadBalancer --port=80 --target-port=5000 --name=$DEPLOYMENT_NAME-service
+          fi
+
+      - name: Force update deployment image
+        run: |
+          kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text):$IMAGE_TAG
+          kubectl rollout status deployment/$DEPLOYMENT_NAME
 
       - name: Show service external URL
         run: |
