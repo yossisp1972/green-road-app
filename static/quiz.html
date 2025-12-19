@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Quiz</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
+    .quiz-container { max-width: 400px; margin: 40px auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px #ccc; }
+    .question { margin-bottom: 16px; }
+    .option { display: block; margin: 8px 0; padding: 10px; border-radius: 4px; border: 1px solid #aaa; background: #f5f5f5; cursor: pointer; }
+    .option:hover { background: #e0e0e0; }
+    .score { font-size: 1.2em; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h2>Quick Quiz</h2>
+    <div id="quiz"></div>
+    <div class="score" id="score"></div>
+  </div>
+  <script>
+    const questions = [
+      {
+        question: 'What is the capital of France?',
+        options: ['Berlin', 'London', 'Paris', 'Madrid'],
+        answer: 'Paris',
+      },
+      {
+        question: 'Which planet is known as the Red Planet?',
+        options: ['Earth', 'Mars', 'Jupiter', 'Saturn'],
+        answer: 'Mars',
+      },
+      {
+        question: 'Who wrote "To be, or not to be"?',
+        options: ['Charles Dickens', 'William Shakespeare', 'Mark Twain', 'Jane Austen'],
+        answer: 'William Shakespeare',
+      },
+    ];
+    let current = 0;
+    let score = 0;
+    function showQuestion() {
+      const q = questions[current];
+      let html = `<div class='question'><strong>Q${current+1}:</strong> ${q.question}</div>`;
+      q.options.forEach(opt => {
+        html += `<button class='option' onclick='answer("${opt.replace(/"/g, '&quot;')}")'>${opt}</button>`;
+      });
+      document.getElementById('quiz').innerHTML = html;
+      document.getElementById('score').textContent = '';
+    }
+    window.answer = function(opt) {
+      if (opt === questions[current].answer) score++;
+      current++;
+      if (current < questions.length) {
+        showQuestion();
+      } else {
+        document.getElementById('quiz').innerHTML = '';
+        document.getElementById('score').textContent = `Your score: ${score} / ${questions.length}`;
+      }
+    }
+    showQuestion();
+  </script>
+</body>
+</html>
