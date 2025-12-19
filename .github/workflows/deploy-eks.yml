@@ -65,6 +65,10 @@ jobs:
           kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text):$IMAGE_TAG
           kubectl rollout status deployment/$DEPLOYMENT_NAME
 
+      - name: Force pods restart
+        run: |
+          kubectl delete pods -l app=$DEPLOYMENT_NAME || true
+
       - name: Show service external URL
         run: |
           echo "Waiting for LoadBalancer external IP..."
