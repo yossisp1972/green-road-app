@@ -55,3 +55,19 @@ jobs:
           kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text):$IMAGE_TAG || \
           kubectl create deployment $DEPLOYMENT_NAME --image=$(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text):$IMAGE_TAG --port=5000
           kubectl expose deployment $DEPLOYMENT_NAME --type=LoadBalancer --port=80 --target-port=5000 --name=$DEPLOYMENT_NAME-service || true
+
+      - name: Show service external URL
+        run: |
+          echo "Waiting for LoadBalancer external IP..."
+          for i in {1..20}; do
+            EXTERNAL_URL=$(kubectl get svc $DEPLOYMENT_NAME-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+            if [ -z "$EXTERNAL_URL" ]; then
+              EXTERNAL_URL=$(kubectl get svc $DEPLOYMENT_NAME-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+            fi
+            if [ -n "$EXTERNAL_URL" ]; then
+              echo "App is available at: http://$EXTERNAL_URL"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "Timed out waiting for LoadBalancer external IP."
