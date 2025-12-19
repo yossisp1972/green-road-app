@@ -2,7 +2,8 @@
 FROM node:18 AS frontend-build
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm install
+RUN npm install \
+	&& chmod +x ./node_modules/.bin/vite
 COPY frontend/ ./
 RUN npm run build
 
