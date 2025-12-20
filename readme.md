@@ -1,7 +1,7 @@
 # Green Road App
 
 ## Overview
-This application is a simple Python Flask web app deployed on AWS EKS. It serves a static HTML quiz at the root URL. The app is containerized with Docker and deployed using GitHub Actions.
+This application is a simple static HTML quiz web app deployed on AWS EKS. It is served by a minimal Python backend and containerized with Docker, then deployed using GitHub Actions.
 
 ## Deployment
 - Source code is built into a Docker image and pushed to Amazon ECR.
