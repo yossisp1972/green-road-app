@@ -47,9 +47,21 @@ jobs:
         run: |
           docker push $(aws ecr describe-repositories --repository-names $ECR_REPO_NAME --query 'repositories[0].repositoryUri' --output text):$IMAGE_TAG
 
+
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+
+      - name: Enable EKS Container Insights (control plane logs)
+        run: |
+          aws eks update-cluster-config \
+            --region $AWS_REGION \
+            --name $CLUSTER_NAME \
+            --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":true}]}'
+
+      - name: Deploy CloudWatch agent and Fluent Bit
+        run: |
+          kubectl apply -f https://amazon-eks.s3.us-west-2.amazonaws.com/cloudwatch/2023-10-11/quickstart/cwagent-fluent-bit-quickstart.yaml
 
       - name: Deploy to EKS
         run: |
